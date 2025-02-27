@@ -30,12 +30,16 @@ export async function sendNotification(message: string) {
     }
 
     try {
+        type PushSubscriptionWithKeys = PushSubscription & {
+            keys: { p256dh: string; auth: string };
+        };
+
         const pushSubscription: import("web-push").PushSubscription = {
-            endpoint: subscription.endpoint,
-            expirationTime: subscription.expirationTime || null,
-            keys: (subscription as any).keys || {
+            endpoint: (subscription as PushSubscriptionWithKeys).endpoint,
+            expirationTime: (subscription as PushSubscriptionWithKeys).expirationTime ?? null,
+            keys: (subscription as PushSubscriptionWithKeys).keys ?? {
                 p256dh: "",
-                auth: "",
+                auth: ""
             }
         };
 
