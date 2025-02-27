@@ -30,17 +30,25 @@ export async function sendNotification(message: string) {
     }
 
     try {
+        const pushSubscription: import("web-push").PushSubscription = {
+            endpoint: subscription.endpoint,
+            expirationTime: subscription.expirationTime || null,
+            keys: (subscription as any).keys || {
+                p256dh: "",
+                auth: "",
+            }
+        };
+
         await webpush.sendNotification(
-            subscription,
+            pushSubscription, // Aqui está a correção
             JSON.stringify({
                 title: 'Test Notification',
                 body: message,
                 icon: '/icon.png',
             })
-        )
-        return { success: true }
+        );
     } catch (error) {
-        console.error('Error sending push notification:', error)
-        return { success: false, error: 'Failed to send notification' }
+        console.error("Erro ao enviar notificação:", error);
     }
+
 }
