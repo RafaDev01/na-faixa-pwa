@@ -20,7 +20,6 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
 
-    // Recupera usuário do localStorage ao montar
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         if (storedUser && storedUser !== "undefined") {

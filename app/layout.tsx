@@ -1,11 +1,13 @@
+"use client";
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CustomThemeProvider } from "../theme/ThemeProvider";
 import { AuthProvider } from "../contexts/ContextAuth";
 import { Header } from "../components/header/Header";
-
-
+import { useEffect, useState } from "react";
+import Loader from "./loading";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,16 +19,41 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Na Faixa",
   description: "Sistema de previsão de gastos de veículos",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const handleLoad = () => {
+      setIsLoaded(true);
+    };
+
+    if (document.readyState === "complete") {
+      setIsLoaded(true);
+    } else {
+      window.addEventListener("load", handleLoad);
+      return () => window.removeEventListener("load", handleLoad);
+    }
+  }, []);
+
+  if (!isLoaded) {
+    return (
+      <html lang="pt-br">
+        <body>
+          <Loader />
+        </body>
+      </html >
+    );
+  }
+
   return (
     <html lang="pt-br">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
@@ -37,6 +64,6 @@ export default function RootLayout({
           </AuthProvider>
         </CustomThemeProvider>
       </body>
-    </html >
+    </html>
   );
 }
