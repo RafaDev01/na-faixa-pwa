@@ -2,8 +2,9 @@
 "use client";
 
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../contexts/ContextAuth";
 import {
     Container,
     Card,
@@ -18,14 +19,18 @@ import {
 } from "./LoginStyles";
 
 export default function LoginPage() {
+    useEffect(() => {
+        localStorage.setItem("user", "");
+    }, []);
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
+    const { login } = useAuth();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Verifica se os campos estão preenchidos
         if (!email.trim() || !password.trim()) {
             alert("Preencha todos os campos!");
             return;
@@ -37,8 +42,14 @@ export default function LoginPage() {
                 senha: password,
             });
 
-            if (response.data.success) {
-                router.push("/dashboard"); // Redireciona se estiver tudo certo
+            if (response.data) {
+                const userData = response.data.success;
+                if (userData) {
+                    login(userData);
+                    router.push("/dashboard");
+                } else {
+                    alert("Dados do usuário inválidos.");
+                }
             } else {
                 alert("Credenciais inválidas.");
             }
