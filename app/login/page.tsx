@@ -1,6 +1,7 @@
 // app/login/page.tsx
 "use client";
 
+import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -16,20 +17,33 @@ import {
     SecondaryLink,
 } from "./LoginStyles";
 
-import { useTheme } from "../../theme/ThemeProvider";
-
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
-    const { toggleTheme } = useTheme();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (email === "teste@email.com" && password === "123456") {
-            router.push("/dashboard");
-        } else {
-            alert("Credenciais inválidas");
+
+        // Verifica se os campos estão preenchidos
+        if (!email.trim() || !password.trim()) {
+            alert("Preencha todos os campos!");
+            return;
+        }
+
+        try {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+                email,
+                senha: password,
+            });
+
+            if (response.data.success) {
+                router.push("/dashboard"); // Redireciona se estiver tudo certo
+            } else {
+                alert("Credenciais inválidas.");
+            }
+        } catch (error) {
+            alert("Erro ao tentar fazer login. Tente novamente.");
         }
     };
 
@@ -65,11 +79,6 @@ export default function LoginPage() {
                 </div>
                 <div style={{ textAlign: "center", marginTop: "0.5rem" }}>
                     <SecondaryLink href="/register">Criar conta</SecondaryLink>
-                </div>
-                <div style={{ textAlign: "center", marginTop: "1rem" }}>
-                    <Button type="button" onClick={toggleTheme}>
-                        Trocar Tema
-                    </Button>
                 </div>
             </Card>
         </Container>
